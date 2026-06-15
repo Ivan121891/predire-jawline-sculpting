@@ -4,7 +4,7 @@
   const TEST = new URLSearchParams(location.search).get('test') === '1';
 
   // ------- Configuration -------
-  const SERVICE_NAME = "Saggy Neck Double Lift Skin Tightening Treatment";
+  const SERVICE_NAME = "Jawline Sculpting Treatment";
   const SERVICE_DURATION_MIN = 60;
 
   // Days of week to block from booking (0=Sun, 6=Sat)
@@ -318,8 +318,8 @@
         lastName: lastName || '-',
         email,
         phone,
-        source: 'Saggy Neck Double Lift Skin Tightening Treatment LP',
-        tags: TEST ? ['Saggy Neck Double Lift Skin Tightening Treatment', 'TEST-DONOTCOUNT'] : ['Saggy Neck Double Lift Skin Tightening Treatment'],
+        source: 'Jawline Sculpting Treatment LP',
+        tags: TEST ? ['Jawline Sculpting Treatment', 'TEST-DONOTCOUNT'] : ['Jawline Sculpting Treatment'],
       });
       const contactId = contactRes.contact?.id || contactRes.id;
 
@@ -335,7 +335,7 @@
         assignedUserId: GHL.userId,
         startTime:      isoInTz(start, BUSINESS_TZ),
         endTime:        isoInTz(end,   BUSINESS_TZ),
-        title:          `${name} — Saggy Neck Double Lift Skin Tightening Treatment`,
+        title:          `${name} — Jawline Sculpting Treatment`,
         // appointmentStatus: 'confirmed',
         selectedTimezone: BUSINESS_TZ,
       });
