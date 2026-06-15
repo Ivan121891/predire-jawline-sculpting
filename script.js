@@ -334,8 +334,8 @@
       const contactId = contactRes.contact?.id || contactRes.id;
 
       // 2) Book appointment
-      // appointmentStatus: 'confirmed' ensures the booking is visible in
-      // the GHL dashboard calendar view (default 'new' may be hidden).
+      // appointmentStatus: 'new' keeps bookings pending (no auto-confirm);
+      // staff confirm them manually in GHL.
       // selectedTimezone tells GHL which timezone the slot was picked in.
       const _aptRes = await ghlFetch('/calendars/events/appointments', {
         calendarId: GHL.calendarId,
@@ -346,7 +346,7 @@
         startTime:      isoInTz(start, BUSINESS_TZ),
         endTime:        isoInTz(end,   BUSINESS_TZ),
         title:          `${name} — Jawline Sculpting Treatment`,
-        // appointmentStatus: 'confirmed',
+        appointmentStatus: 'new',
         selectedTimezone: BUSINESS_TZ,
       });
 
