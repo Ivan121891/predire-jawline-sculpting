@@ -232,9 +232,12 @@
     track("InitiateCheckout", { content_name: SERVICE_NAME });
   }
 
-  function track(event, params) {
+  function track(event, params, eventId) {
     if (typeof window.fbq === "function") {
-      try { window.fbq("track", event, params || {}); } catch (_) {}
+      try {
+        if (eventId) window.fbq("track", event, params || {}, { eventID: eventId });
+        else window.fbq("track", event, params || {});
+      } catch (_) {}
     }
   }
 
@@ -290,6 +293,11 @@
     try {
       // 1) Upsert contact in GHL
       // Persist the lead + chosen slot BEFORE any GHL call (non-blocking).
+      // One event id shared by the browser pixel and the server CAPI call so
+      // Meta deduplicates the Lead event (counts it once per pixel).
+      var leadEventId = (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : (String(Date.now()) + Math.random().toString(16).slice(2));
       var leadId = null;
       try {
         const _leadRes = await fetch('/api/lead', {
@@ -303,6 +311,8 @@
             startTime: isoInTz(start, BUSINESS_TZ),
             endTime: isoInTz(end, BUSINESS_TZ),
             name, email, phone,
+            eventId: leadEventId,
+            eventName: 'Lead',
             fbclid: (new URLSearchParams(location.search)).get('fbclid') || undefined,
             fbp: (document.cookie.match(/_fbp=([^;]+)/) || [])[1],
             fbc: (document.cookie.match(/_fbc=([^;]+)/) || [])[1],
@@ -348,7 +358,7 @@
         }).catch(function () {});
       } catch (_) {}
 
-      track("Lead", { content_name: SERVICE_NAME });
+      track("Lead", { content_name: SERVICE_NAME }, leadEventId);
       if (!TEST) track("Schedule", { content_name: SERVICE_NAME });
 
       renderConfirmation({
