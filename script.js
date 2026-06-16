@@ -351,15 +351,19 @@
       });
 
       const appointmentId = (_aptRes && (_aptRes.id || _aptRes.appointmentId || (_aptRes.appointment && _aptRes.appointment.id))) || null;
+      // Record the TRUE outcome: ghlFetch throws on non-2xx (-> outer catch ->
+      // 'fail'), so reaching here means 2xx; a missing id is a captured lead,
+      // not a booking — record 'lead_only' so the store never over-counts success.
+      const bookingStatus = appointmentId ? 'success' : 'lead_only';
       try {
         fetch('/api/lead/result', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
-          body: JSON.stringify({ leadId: leadId, locationId: GHL.locationId, status: 'success', appointmentId: appointmentId, eventId: (typeof eventId !== 'undefined' ? eventId : null), scheduleFired: !TEST, test: TEST }),
+          body: JSON.stringify({ leadId: leadId, locationId: GHL.locationId, status: bookingStatus, appointmentId: appointmentId, eventId: (typeof eventId !== 'undefined' ? eventId : null), scheduleFired: (!TEST && bookingStatus === 'success'), test: TEST }),
         }).catch(function () {});
       } catch (_) {}
 
       track("Lead", { content_name: SERVICE_NAME }, leadEventId);
-      if (!TEST) track("Schedule", { content_name: SERVICE_NAME });
+      if (!TEST && bookingStatus === 'success') track("Schedule", { content_name: SERVICE_NAME });
 
       renderConfirmation({
         service: SERVICE_NAME,
